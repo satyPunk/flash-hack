@@ -10,7 +10,7 @@ export default function HomePage() {
   const { user, logoutMutation } = useAuth();
   const [, setLocation] = useLocation();
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,7 +51,7 @@ export default function HomePage() {
               <SelectValue placeholder="Filter by category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               <SelectItem value="academic">Academic</SelectItem>
               <SelectItem value="placement">Placement</SelectItem>
               <SelectItem value="events">Events</SelectItem>
@@ -63,7 +63,7 @@ export default function HomePage() {
         <NoticeList
           filters={{
             search,
-            category: categoryFilter,
+            category: categoryFilter === "all" ? undefined : categoryFilter,
             department: user?.department,
             academicYear: user?.academicYear,
           }}
