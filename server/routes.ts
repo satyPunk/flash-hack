@@ -6,6 +6,24 @@ import { insertNoticeSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   setupAuth(app);
+// Admin route for creating notices
+app.post("/api/admin/notices", async (req, res) => {
+  if (!req.isAuthenticated()) return res.sendStatus(401);
+  if (req.user.role !== 'admin' && req.user.role !== 'faculty') {
+    return res.sendStatus(403);
+  }
+
+  const parsed = insertNoticeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error);
+  }
+
+  const notice = await storage.createNotice({
+    ...parsed.data,
+    authorId: req.user.id,
+  });
+  res.status(201).json(notice);
+});
 
   // Notice CRUD endpoints
   app.get("/api/notices", async (req, res) => {
