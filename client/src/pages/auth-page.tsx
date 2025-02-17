@@ -67,11 +67,20 @@ export default function AuthPage() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isPending}
-              >
+              <div className="space-y-2">
+                <Label htmlFor="role">Role</Label>
+                <select
+                  id="role"
+                  {...form.register("role")}
+                  disabled={isPending}
+                  className="w-full border rounded p-2"
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                </select>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isPending}>
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isLogin ? "Login" : "Register"}
               </Button>
