@@ -6,6 +6,9 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 declare global {
   namespace Express {
@@ -59,14 +62,21 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/register", async (req, res, next) => {
-    const existingUser = await storage.getUserByUsername(req.body.username);
+    const { username, password, role } = req.body;
+
+    if (!["student", "teacher"].includes(role)) {
+      return res.status(400).send("Invalid role selected");
+    }
+
+    const existingUser = await storage.getUserByUsername(username);
     if (existingUser) {
       return res.status(400).send("Username already exists");
     }
 
     const user = await storage.createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
+      username,
+      role,
+      password: await hashPassword(password),
     });
 
     req.login(user, (err) => {
@@ -76,7 +86,7 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+    res.status(200).json({ id: req.user.id, username: req.user.username, role: req.user.role });
   });
 
   app.post("/api/logout", (req, res, next) => {
